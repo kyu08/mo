@@ -1859,6 +1859,17 @@ func extractHeadingLine(line string) string {
 	return title
 }
 
+func isPathWithinBase(baseDir, absPath string) bool {
+	rel, err := filepath.Rel(baseDir, absPath)
+	if err != nil {
+		return false
+	}
+	if rel == "." {
+		return true
+	}
+	return !filepath.IsAbs(rel) && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
 func handleFileRaw(state *State) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		group, err := resolveGroupFromPath(r)
@@ -1889,7 +1900,7 @@ func handleFileRaw(state *State) http.HandlerFunc {
 
 		// Prevent directory traversal outside the base directory
 		baseDir := filepath.Dir(entry.Path)
-		if !strings.HasPrefix(absPath, baseDir) {
+		if !isPathWithinBase(baseDir, absPath) {
 			http.Error(w, "access denied", http.StatusForbidden)
 			return
 		}
