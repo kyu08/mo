@@ -33,14 +33,9 @@ type FileEntry struct {
 	Name     string `json:"name"`
 	ID       string `json:"id"`
 	Path     string `json:"path"`
-	// DisplayPath is a human-friendly path for display: the repository
-	// directory name plus the path relative to the git root (e.g.
-	// "repo/docs/README.md"), or the absolute path when the file is not
-	// inside a git repository. Empty for uploaded files.
-	DisplayPath string `json:"displayPath,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Uploaded    bool   `json:"uploaded,omitempty"`
-	content     string // in-memory content for uploaded files
+	Title    string `json:"title,omitempty"`
+	Uploaded bool   `json:"uploaded,omitempty"`
+	content  string // in-memory content for uploaded files
 }
 
 const headFileSizeLimit = 8192
@@ -155,29 +150,6 @@ func extractTitleFromFile(path string) (string, bool) {
 func FileID(absPath string) string {
 	h := sha256.Sum256([]byte(absPath))
 	return hex.EncodeToString(h[:])[:8]
-}
-
-// DisplayPath returns a human-friendly path for absPath: the git repository
-// directory name joined with the path relative to the repository root (e.g.
-// "repo/docs/README.md"). It walks up from the file's directory looking for a
-// .git entry (a directory in a normal clone, a file in a worktree). When the
-// file is not inside a git repository, it falls back to absPath as is.
-func DisplayPath(absPath string) string {
-	dir := filepath.Dir(absPath)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
-			rel, err := filepath.Rel(dir, absPath)
-			if err != nil {
-				return absPath
-			}
-			return filepath.Join(filepath.Base(dir), rel)
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return absPath
-		}
-		dir = parent
-	}
 }
 
 type Group struct {
@@ -343,11 +315,10 @@ func (s *State) AddFile(absPath, groupName string) (*FileEntry, error) {
 	}
 
 	entry := &FileEntry{
-		Name:        filepath.Base(absPath),
-		ID:          FileID(absPath),
-		Path:        absPath,
-		DisplayPath: DisplayPath(absPath),
-		Title:       title,
+		Name:  filepath.Base(absPath),
+		ID:    FileID(absPath),
+		Path:  absPath,
+		Title: title,
 	}
 	g.Files = append(g.Files, entry)
 

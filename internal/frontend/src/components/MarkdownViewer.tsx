@@ -67,7 +67,7 @@ interface MarkdownViewerProps {
   fileId: string;
   fileName: string;
   title?: string;
-  displayPath?: string;
+  filePath?: string;
   activeGroup: string;
   revision: number;
   onFileOpened: (fileId: string) => void;
@@ -530,7 +530,7 @@ export function MarkdownViewer({
   fileId,
   fileName,
   title,
-  displayPath,
+  filePath,
   activeGroup,
   revision,
   onFileOpened,
@@ -812,7 +812,7 @@ export function MarkdownViewer({
       <div className="min-w-0 flex-1">
         <div
           className={`mx-auto mb-4 border-b border-gh-border pb-2 text-sm font-medium text-gh-text-secondary truncate${isWide ? "" : " max-w-[980px]"}`}
-          title={uploaded ? fileName : displayPath}
+          title={uploaded ? fileName : filePath}
         >
           {formatFileLabel(fileName, title)}
         </div>

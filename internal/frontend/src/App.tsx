@@ -509,7 +509,7 @@ export function App() {
                 fileId={activeFileId}
                 fileName={activeFileName}
                 title={activeFile?.title}
-                displayPath={activeFile?.displayPath}
+                filePath={activeFile?.path}
                 activeGroup={activeGroup}
                 revision={contentRevision}
                 onFileOpened={handleFileOpened}

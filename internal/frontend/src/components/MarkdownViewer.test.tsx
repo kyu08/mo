@@ -41,21 +41,21 @@ describe("MarkdownViewer file title bar", () => {
   it("shows 'Title - filename' above the content, outside the markdown body", async () => {
     renderViewer({
       title: "Project Readme",
-      displayPath: "mo/docs/README.md",
+      filePath: "/home/me/code/mo/docs/README.md",
     });
 
     const bar = await screen.findByText("Project Readme - README.md");
-    // Hover shows the repository-relative display path.
-    expect(bar).toHaveAttribute("title", "mo/docs/README.md");
+    // Hover shows the absolute file path.
+    expect(bar).toHaveAttribute("title", "/home/me/code/mo/docs/README.md");
     // The title bar must not be part of the rendered markdown content.
     expect(bar.closest(".markdown-body")).toBeNull();
   });
 
   it("falls back to the file name when the file has no title", async () => {
-    renderViewer({ displayPath: "mo/docs/README.md" });
+    renderViewer({ filePath: "/home/me/code/mo/docs/README.md" });
 
     const bar = await screen.findByText("README.md");
-    expect(bar).toHaveAttribute("title", "mo/docs/README.md");
+    expect(bar).toHaveAttribute("title", "/home/me/code/mo/docs/README.md");
   });
 
   it("uses the file name as the tooltip for uploaded files", async () => {

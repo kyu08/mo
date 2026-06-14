@@ -2,7 +2,6 @@ export interface FileEntry {
   name: string;
   id: string;
   path: string;
-  displayPath?: string;
   title?: string;
   uploaded?: boolean;
 }
