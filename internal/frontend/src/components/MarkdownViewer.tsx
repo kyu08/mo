@@ -21,6 +21,7 @@ import { resolveLink, resolveImageSrc, extractLanguage } from "../utils/resolve"
 import { parseFrontmatter } from "../utils/frontmatter";
 import { stripMdxSyntax } from "../utils/mdx";
 import { isMarkdownFile, detectLanguage } from "../utils/filetype";
+import { formatFileLabel } from "../utils/fileLabel";
 import type { ZoomContent } from "./ZoomModal";
 import type { TocHeading } from "./TocPanel";
 import type { Components } from "react-markdown";
@@ -65,6 +66,8 @@ const sanitizeSchema = {
 interface MarkdownViewerProps {
   fileId: string;
   fileName: string;
+  title?: string;
+  filePath?: string;
   activeGroup: string;
   revision: number;
   onFileOpened: (fileId: string) => void;
@@ -526,6 +529,8 @@ function RawView({ content }: { content: string }) {
 export function MarkdownViewer({
   fileId,
   fileName,
+  title,
+  filePath,
   activeGroup,
   revision,
   onFileOpened,
@@ -804,25 +809,33 @@ export function MarkdownViewer({
 
   return (
     <div className="flex items-start gap-2">
-      <article
-        ref={articleRef}
-        className={`markdown-body relative min-w-0 flex-1 overflow-visible${isWide ? " markdown-body--wide" : ""}${fontSize !== "medium" ? ` markdown-body--${fontSize}` : ""}`}
-      >
-        <div className="pointer-events-none absolute inset-0 z-10 overflow-visible">
-          {searchHitMarkers.map((marker, index) => (
-            <div
-              key={`${marker.top}:${marker.height}:${index}`}
-              className="absolute w-1 rounded-none bg-gh-text/80"
-              style={{
-                left: SEARCH_HIT_COLUMN_OFFSET,
-                top: marker.top,
-                height: marker.height,
-              }}
-            />
-          ))}
+      <div className="min-w-0 flex-1">
+        <div
+          className={`mx-auto mb-4 border-b border-gh-border pb-2 text-sm font-medium text-gh-text-secondary overflow-hidden text-ellipsis whitespace-nowrap${isWide ? "" : " max-w-[980px]"}`}
+          title={uploaded ? fileName : filePath}
+        >
+          {formatFileLabel(fileName, title)}
         </div>
-        {renderedContent}
-      </article>
+        <article
+          ref={articleRef}
+          className={`markdown-body relative overflow-visible${isWide ? " markdown-body--wide" : ""}${fontSize !== "medium" ? ` markdown-body--${fontSize}` : ""}`}
+        >
+          <div className="pointer-events-none absolute inset-0 z-10 overflow-visible">
+            {searchHitMarkers.map((marker, index) => (
+              <div
+                key={`${marker.top}:${marker.height}:${index}`}
+                className="absolute w-1 rounded-none bg-gh-text/80"
+                style={{
+                  left: SEARCH_HIT_COLUMN_OFFSET,
+                  top: marker.top,
+                  height: marker.height,
+                }}
+              />
+            ))}
+          </div>
+          {renderedContent}
+        </article>
+      </div>
       <div className="shrink-0 flex flex-col gap-2 -mr-4 -mt-4 sticky -top-4">
         {isMarkdown && <TocToggle isTocOpen={isTocOpen} onToggle={onTocToggle} />}
         {isMarkdown && <RawToggle isRaw={isRawView} onToggle={() => setIsRawView((v) => !v)} />}
