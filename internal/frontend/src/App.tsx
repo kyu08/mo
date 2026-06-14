@@ -28,6 +28,7 @@ import {
   buildFileUrl,
 } from "./utils/groups";
 import { isMarkdownFile } from "./utils/filetype";
+import { formatFileLabel } from "./utils/fileLabel";
 
 const VIEWMODE_STORAGE_KEY = "mo-sidebar-viewmode";
 const WIDTH_STORAGE_KEY = "mo-layout-width";
@@ -65,8 +66,7 @@ export function getInitialTocOpenMap(): Record<string, boolean> {
 export function formatTitle(fileEntry: Pick<FileEntry, "name" | "title"> | undefined): string {
   if (fileEntry == undefined) return "mo";
   const { name, title } = fileEntry;
-  const fullTitle = title === undefined ? name : `${title} - ${name}`;
-  return `${fullTitle} | mo`;
+  return `${formatFileLabel(name, title)} | mo`;
 }
 
 export function isTocOpenForFile(
@@ -508,6 +508,8 @@ export function App() {
               <MarkdownViewer
                 fileId={activeFileId}
                 fileName={activeFileName}
+                title={activeFile?.title}
+                displayPath={activeFile?.displayPath}
                 activeGroup={activeGroup}
                 revision={contentRevision}
                 onFileOpened={handleFileOpened}

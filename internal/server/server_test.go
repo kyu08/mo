@@ -1683,6 +1683,42 @@ func TestFileID(t *testing.T) {
 	}
 }
 
+func TestDisplayPath(t *testing.T) {
+	dir := t.TempDir()
+
+	// File inside a git repository: repo dir name + path relative to the root
+	repo := filepath.Join(dir, "myrepo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(repo, "docs"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	inRepo := filepath.Join(repo, "docs", "a.md")
+	if got, want := DisplayPath(inRepo), filepath.Join("myrepo", "docs", "a.md"); got != want {
+		t.Errorf("DisplayPath(%q) = %q, want %q", inRepo, got, want)
+	}
+
+	// Worktree: .git is a file, not a directory
+	worktree := filepath.Join(dir, "wt")
+	if err := os.MkdirAll(worktree, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(worktree, ".git"), []byte("gitdir: /elsewhere"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	inWorktree := filepath.Join(worktree, "b.md")
+	if got, want := DisplayPath(inWorktree), filepath.Join("wt", "b.md"); got != want {
+		t.Errorf("DisplayPath(%q) = %q, want %q", inWorktree, got, want)
+	}
+
+	// Outside any git repository: fall back to the absolute path
+	outside := filepath.Join(dir, "plain", "c.md")
+	if got := DisplayPath(outside); got != outside {
+		t.Errorf("DisplayPath(%q) = %q, want %q", outside, got, outside)
+	}
+}
+
 func TestDirMove(t *testing.T) {
 	ctx, cancel := donegroup.WithCancel(context.Background())
 	defer cancel()
